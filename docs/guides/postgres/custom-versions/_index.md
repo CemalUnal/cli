@@ -5,6 +5,6 @@ menu:
     identifier: pg-custom-versions-postgres
     name: Custom Versions
     parent: pg-postgres-guides
-    weight: 20
+    weight: 45
 menu_name: docs_0.8.0
 ---
