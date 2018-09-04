@@ -17,8 +17,7 @@ KubeDB PostgreSQL also supports continuous archiving using [wal-g ](https://gith
 
 ## Before You Begin
 
-At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster.
-If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
+At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -70,8 +69,7 @@ Here,
 
 ##### What is this Continuous Archiving
 
-PostgreSQL maintains a write ahead log (WAL) in the pg_xlog/ subdirectory of the cluster's data directory.  The existence of the log makes it possible to use
-a third strategy for backing up databases and if recovery is needed, restore from the backed-up WAL files to bring the system to a current state.
+PostgreSQL maintains a write ahead log (WAL) in the `pg_xlog/` subdirectory of the cluster's data directory.  The existence of the log makes it possible to use a third strategy for backing up databases and if recovery is needed, restore from the backed-up WAL files to bring the system to a current state.
 
 ##### Continuous Archiving setup
 
@@ -174,6 +172,8 @@ $ kubectl delete -n demo pg/wal-postgres
 
 $ kubectl patch -n demo drmn/wal-postgres -p '{"spec":{"wipeOut":true}}' --type="merge"
 $ kubectl delete -n demo drmn/wal-postgres
+
+$ kubectl delete -n demo secret/s3-secret
 
 $ kubectl delete ns demo
 ```
