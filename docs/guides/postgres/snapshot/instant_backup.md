@@ -11,9 +11,11 @@ section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).
 
-# KubeDB Snapshot
+# Database Snapshot
 
 KubeDB operator maintains another Custom Resource Definition (CRD) for database backups called Snapshot. Snapshot object is used to take backup or restore from a backup. For more details about Snapshot please visit [here](/docs/concepts/snapshot.md).
+
+This tutorial will show how to take instant backup of PostgreSQL database deployed with KubeDB.
 
 ## Before You Begin
 

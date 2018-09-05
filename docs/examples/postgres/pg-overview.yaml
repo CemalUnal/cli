@@ -1,0 +1,76 @@
+apiVersion: kubedb.com/v1alpha1
+kind: Postgres
+metadata:
+  name: p1
+  namespace: demo
+spec:
+  version: "10.2"
+  replicas: 2
+  doNotPause: true
+  standbyMode: hot
+  streamingMode: synchronous
+  archiver:
+    storage:
+      storageSecretName: s3-secret
+      s3:
+        bucket: kubedb
+  databaseSecret:
+    secretName: p1-auth
+  storageType: Durable
+  storage:
+    storageClassName: standard
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 50Mi
+  init:
+    scriptSource:
+      configMap:
+        name: pg-init-script
+  backupSchedule:
+    cronExpression: "@every 6h"
+    storageSecretName: gcs-secret
+    gcs:
+      bucket: kubedb
+      prefix: demo
+    podTemplate:
+      spec:
+        args:
+        - "TODO"
+  monitor:
+    agent: prometheus.io/coreos-operator
+    prometheus:
+      namespace: demo
+      labels:
+        app: kubedb
+      interval: 10s
+  configSource:
+      configMap:
+        name: pg-custom-config
+  podTemplate:
+    annotations:
+      passTo: database_pod
+    controller:
+      annotations:
+        passTo: statfulset
+    spec:
+      nodeSelector:
+        disktype: ssd      
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "250m"
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+      imagePullSecrets:
+        - name:  my-registry-secret
+      env:
+        - name: POSTGRES_DB
+          value: pgdb
+  serviceTemplate:
+    annotations:
+      passTo: service
+    spec:
+      type: "ClusterIP"

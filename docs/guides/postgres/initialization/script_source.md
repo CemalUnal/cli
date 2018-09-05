@@ -14,12 +14,11 @@ section_menu_id: guides
 
 # Initialize PostgreSQL with Script
 
-KubeDB supports PostgreSQL database initialization.
+KubeDB supports PostgreSQL database initialization. This tutorial will show you how to use KubeDB to initialize a PostgreSQL database from script.
 
 ## Before You Begin
 
-At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster.
-If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
+At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -36,11 +35,13 @@ demo    Active  5s
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
-This tutorial will show you how to use KubeDB to initialize a PostgreSQL database with supported script.
-
 ## Create PostgreSQL with script source
 
-PostgreSQL database can be initialized by scripts provided to it.
+PostgreSQL supports initialization with `.sh`, `.sql` and `.sql.gz` files. In this tutorial, we will use `data.sql` script from [postgres-init-scripts](https://github.com/kubedb/postgres-init-scripts.git) git repository to create a TABLE `dashboard` in `data` Schema.
+
+As [gitRepo](https://kubernetes.io/docs/concepts/storage/volumes/#gitrepo) volume has been deprecated, we will use a ConfigMap as script source. You can use any Kubernetes supported [volume](https://kubernetes.io/docs/concepts/storage/volumes) as script source.
+
+At first, we will create a ConfigMap from `data.sql` file. Then, we will provide this ConfigMap as script source in `init.scriptSource` of Postgres crd spec.
 
 Following YAML describes a Postgres object that holds VolumeSource of initialization scripts.
 
@@ -51,7 +52,7 @@ metadata:
   name: script-postgres
   namespace: demo
 spec:
-  version: "9.6"
+  version: "10.2"
   storage:
     storageClassName: "standard"
     accessModes:
@@ -61,9 +62,8 @@ spec:
         storage: 50Mi
   init:
     scriptSource:
-      gitRepo:
-        repository: "https://github.com/kubedb/postgres-init-scripts.git"
-        directory: "."
+      configMap:
+        name: pg-init-script
 ```
 
 Here,
@@ -72,64 +72,138 @@ Here,
 
 VolumeSource provided in `init.scriptSource` will be mounted in Pod and will be executed while creating PostgreSQL.
 
-In this tutorial, `data.sql` script from the git repository `https://github.com/kubedb/postgres-init-scripts.git` is used to create a TABLE `dashboard` in `data` Schema.
-
-> Note: PostgreSQL supports initialization with `.sh`, `.sql` and `.sql.gz` files.
+Let's create a ConfigMap with initialization script,
 
 ```console
-$ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/initialization/script-postgres.yaml
-postgres "script-postgres" created
+$ kubectl create configmap -n demo pg-init-script \
+--from-literal=data.sql="$(curl -fsSL https://raw.githubusercontent.com/kubedb/postgres-init-scripts/master/data.sql)"
+configmap/pg-init-script created
 ```
 
+Now, create the Postgres crd which YAML we have shown above,
+
 ```console
-$ kubedb describe pg -n demo script-postgres -S=false -W=false
-Name:           script-postgres
-Namespace:      demo
-StartTimestamp: Thu, 08 Feb 2018 15:55:11 +0600
-Status:         Running
+$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/initialization/script-postgres.yaml 
+postgres.kubedb.com/script-postgres created
+```
+
+Wait until Postgres goes in `Running` state. Verify that the database is in `Running` state using following command,
+
+```console
+ $ kubectl get pg -n demo script-postgres
+NAME              VERSION   STATUS    AGE
+script-postgres   10.2      Running   3m
+```
+
+You can use `kubedb describe` command to view which resources has been created by KubeDB for this Postgres object.
+
+```console
+$ kubedb describe pg -n demo script-postgres
+Name:               script-postgres
+Namespace:          demo
+CreationTimestamp:  Tue, 04 Sep 2018 16:48:57 +0600
+Labels:             <none>
+Annotations:        kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"kubedb.com/v1alpha1","kind":"Postgres","metadata":{"annotations":{},"name":"script-postgres","namespace":"demo"},"spec":{"init":{"script...
+Replicas:           1  total
+Status:             Running
 Init:
   scriptSource:
-    Type:       GitRepo (a volume that is pulled from git when the pod is created)
-    Repository: https://github.com/kubedb/postgres-init-scripts.git
-    Directory:  .
 Volume:
-  StorageClass: standard
-  Capacity:     50Mi
-  Access Modes: RWO
-StatefulSet:    script-postgres
-Service:        script-postgres, script-postgres-replicas
-Secrets:        script-postgres-auth
+    Type:       ConfigMap (a volume populated by a ConfigMap)
+    Name:       pg-init-script
+    Optional:   false
+  StorageType:  Durable
+Volume:
+  StorageClass:  standard
+  Capacity:      50Mi
+  Access Modes:  RWO
+
+StatefulSet:          
+  Name:               script-postgres
+  CreationTimestamp:  Tue, 04 Sep 2018 16:49:00 +0600
+  Labels:               kubedb.com/kind=Postgres
+                        kubedb.com/name=script-postgres
+  Annotations:        <none>
+  Replicas:           824638975264 desired | 1 total
+  Pods Status:        1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+
+Service:        
+  Name:         script-postgres
+  Labels:         kubedb.com/kind=Postgres
+                  kubedb.com/name=script-postgres
+  Annotations:  <none>
+  Type:         ClusterIP
+  IP:           10.109.153.29
+  Port:         api  5432/TCP
+  TargetPort:   api/TCP
+  Endpoints:    172.17.0.6:5432
+
+Service:        
+  Name:         script-postgres-replicas
+  Labels:         kubedb.com/kind=Postgres
+                  kubedb.com/name=script-postgres
+  Annotations:  <none>
+  Type:         ClusterIP
+  IP:           10.100.56.76
+  Port:         api  5432/TCP
+  TargetPort:   api/TCP
+  Endpoints:    172.17.0.6:5432
+
+Database Secret:
+  Name:         script-postgres-auth
+  Labels:         kubedb.com/kind=Postgres
+                  kubedb.com/name=script-postgres
+  Annotations:  <none>
+  
+Type:  Opaque
+  
+Data
+====
+  POSTGRES_USER:      8 bytes
+  POSTGRES_PASSWORD:  16 bytes
 
 Topology:
-  Type      Pod                 StartTime                       Phase
-  ----      ---                 ---------                       -----
-  primary   script-postgres-0   2018-02-08 15:55:29 +0600 +06   Running
+  Type     Pod                StartTime                      Phase
+  ----     ---                ---------                      -----
+  primary  script-postgres-0  2018-09-04 16:49:04 +0600 +06  Running
 
 No Snapshots.
 
 Events:
-  FirstSeen   LastSeen   Count     From                Type       Reason       Message
-  ---------   --------   -----     ----                --------   ------       -------
-  4m          4m         1         Postgres operator   Normal     Successful   Successfully patched StatefulSet
-  4m          4m         1         Postgres operator   Normal     Successful   Successfully patched Postgres
-  4m          4m         1         Postgres operator   Normal     Successful   Successfully created StatefulSet
-  4m          4m         1         Postgres operator   Normal     Successful   Successfully created Postgres
-  5m          5m         1         Postgres operator   Normal     Successful   Successfully created Service
-  5m          5m         1         Postgres operator   Normal     Successful   Successfully created Service
+  Type    Reason      Age   From               Message
+  ----    ------      ----  ----               -------
+  Normal  Successful  4m    Postgres operator  Successfully created Service
+  Normal  Successful  4m    Postgres operator  Successfully created Service
+  Normal  Successful  4m    Postgres operator  Successfully created StatefulSet
+  Normal  Successful  4m    Postgres operator  Successfully created Postgres
+  Normal  Successful  4m    Postgres operator  Successfully patched StatefulSet
+  Normal  Successful  4m    Postgres operator  Successfully patched Postgres
+
 ```
 
-Now lets connect to our Postgres `script-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial.
+Now let's connect to our Postgres `script-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial.
 
 Connection information:
 
-- address: use Service `script-postgres.demo`
-- port: `5432`
-- database: `postgres`
-- username: `postgres`
+- Host name/address: you can use any of these
+  - Service: `script-postgres.demo`
+  - Pod IP: (`$ kubectl get pods script-postgres-0 -n demo -o yaml | grep podIP`)
+- Port: `5432`
+- Maintenance database: `postgres`
 
-Run following command to get `postgres` superuser password
+Run following command to get Username,
 
-    $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
+ ```console
+ $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_USER}' | base64 -d
+postgres
+ ```
+
+Run the following command to get Password,
+
+```console
+$ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
+NC1fEq0q5XqHazB8
+```
 
 In PostgreSQL, run following query to check `pg_catalog.pg_tables` to confirm initialization.
 
@@ -137,9 +211,9 @@ In PostgreSQL, run following query to check `pg_catalog.pg_tables` to confirm in
 select * from pg_catalog.pg_tables where schemaname = 'data';
 ```
 
- schemaname | tablename | tableowner | hasindexes | hasrules | hastriggers | rowsecurity
-------------|-----------|------------|------------|----------|-------------|-------------
- data       | dashboard | postgres   | t          | f        | f           | f
+ | schemaname | tablename | tableowner | hasindexes | hasrules | hastriggers | rowsecurity |
+ | ---------- | --------- | ---------- | ---------- | -------- | ----------- | ----------- |
+ | data       | dashboard | postgres   | true       | false    | false       | false       |
 
 We can see TABLE `dashboard` in `data` Schema which is created for initialization.
 
@@ -153,6 +227,8 @@ $ kubectl delete -n demo pg/script-postgres
 
 $ kubectl patch -n demo drmn/script-postgres -p '{"spec":{"wipeOut":true}}' --type="merge"
 $ kubectl delete -n demo drmn/script-postgres
+
+$ kubectl delete -n demo configmap/pg-init-script
 
 $ kubectl delete ns demo
 ```

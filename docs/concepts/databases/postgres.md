@@ -95,9 +95,17 @@ spec:
 
 `spec.replicas` specifies the total number of primary and standby nodes in Postgres database cluster configuration. One pod is selected as Primary and others are acted as standby replicas.
 
-### spec.standby
+### spec.doNotPause
+
+KubeDB takes advantage of `ValidationWebhook` feature in Kubernetes 1.9.0 or later clusters to implement `doNotPause` feature. If admission webhook is enabled, It prevents users from deleting the database as long as the `spec.doNotPause` is set `true`. If not set or set to false, deleting a Postgres object put the database into a dormant state. The StatefulSet for a DormantDatabase is deleted but the underlying PVCs are left intact. This allows users to resume the database later.
+
+### spec.standbyMode
 
 `spec.standby` is an optional field that specifies standby mode (_warm/hot_) supported by Postgres. **Hot standby** can run read-only queries where **Warm standby** can't accept connect and only used for replication purpose.
+
+### spec.streamingMode
+
+//TODO
 
 ### spec.archiver
 
@@ -138,44 +146,9 @@ metadata:
 type: Opaque
 ```
 
-### spec.configSource
+### spec.storageType
 
-`spec.configSource` is an optional field that allows users to provide custom configuration for PostgreSQL. This field accepts a [`VolumeSource`](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). So you can use any kubernetes supported volume source such as `configMap`, `secret`, `azureDisk` etc. To learn more about how to use a custom configuration file see [here](/docs/guides/postgres/custom-config/using-custom-config.md).
-
-### spec.env
-
-`spec.env` is an optional field that specifies the environment variables to pass to the Postgres docker image. To know about supported environment variables, please visit [here](https://hub.docker.com/_/postgres/).
-
-Note that, Kubedb does not allow `POSTGRES_PASSWORD` environment variable to set in `spec.env`. If you want to set the superuser password, please use `spec.databaseSecret` instead described earlier.
-
-If you try to set `POSTGRES_PASSWORD` environment variable in Postgres crd, Kubed operator will reject the request with following error,
-
-```ini
-Error from server (Forbidden): error when creating "./postgres.yaml": admission webhook "postgres.validators.kubedb.com" denied the request: environment variable POSTGRES_PASSWORD is forbidden to use in Postgres spec
-```
-
-Also, note that Kubedb does not allow to update the environment variables as updating them does not have any effect once the database is created.  If you try to update environment variables, Kubedb operator will reject the request with following error,
-
-```ini
-Error from server (BadRequest): error when applying patch:
-...
-for: "./postgres.yaml": admission webhook "postgres.validators.kubedb.com" denied the request: precondition failed for:
-...
-At least one of the following was changed:
-    apiVersion
-    kind
-    name
-    namespace
-    spec.version
-    spec.standby
-    spec.streaming
-    spec.archiver
-    spec.databaseSecret
-    spec.storage
-    spec.nodeSelector
-    spec.init
-    spec.env
-```
+// TODO
 
 ### spec.storage
 
@@ -188,14 +161,16 @@ Since 0.8.0, `spec.storage` is a required field that specifies the StorageClass 
 To learn how to configure `spec.storage`, please visit the links below:
  - https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
 
-### spec.nodeSelector
 
-`spec.nodeSelector` is an optional field that specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). To learn more, see [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) .
 
 ### spec.init
 
 `spec.init` is an optional section that can be used to initialize a newly created Postgres database. PostgreSQL databases can be initialized in one of three ways:
 
+- **scriptSource**
+- **snapshotSource**
+- **postgresWAL**
+  
 #### Initialize via Script
 
 To initialize a PostgreSQL database using a script (shell script, db migrator, etc.), set the `spec.init.scriptSource` section when creating a Postgres object. ScriptSource must have following information:
@@ -283,10 +258,6 @@ KubeDB supports taking periodic snapshots for Postgres database. This is an opti
  - `spec.backupSchedule.{storage}` is a required field that is used as the destination for storing snapshot data. KubeDB supports cloud storage providers like S3, GCS, Azure and OpenStack Swift. It also supports any locally mounted Kubernetes volumes, like NFS, Ceph, etc. Only one backend can be used at a time. To learn how to configure this, please visit [here](/docs/concepts/snapshot.md).
  - `spec.backupSchedule.resources` is an optional field that can request compute resources required by Jobs used to take a snapshot or initialize databases from a snapshot.  To learn more, visit [here](http://kubernetes.io/docs/user-guide/compute-resources/).
 
-### spec.doNotPause
-
-KubeDB takes advantage of `ValidationWebhook` feature in Kubernetes 1.9.0 or later clusters to implement `doNotPause` feature. If admission webhook is enabled, It prevents users from deleting the database as long as the `spec.doNotPause` is set `true`. If not set or set to false, deleting a Postgres object put the database into a dormant state. The StatefulSet for a DormantDatabase is deleted but the underlying PVCs are left intact. This allows users to resume the database later.
-
 ### spec.monitor
 
 PostgreSQL managed by KubeDB can be monitored with builtin-Prometheus and CoreOS-Prometheus operator out-of-the-box. To learn more,
@@ -294,9 +265,83 @@ PostgreSQL managed by KubeDB can be monitored with builtin-Prometheus and CoreOS
 - [Monitor PostgreSQL with builtin Prometheus](/docs/guides/postgres/monitoring/using-builtin-prometheus.md)
 - [Monitor PostgreSQL with CoreOS Prometheus operator](/docs/guides/postgres/monitoring/using-coreos-prometheus-operator.md)
 
-### spec.resources
+### spec.configSource
+
+`spec.configSource` is an optional field that allows users to provide custom configuration for PostgreSQL. This field accepts a [`VolumeSource`](https://github.com/kubernetes/api/blob/release-1.11/core/v1/types.go#L47). So you can use any kubernetes supported volume source such as `configMap`, `secret`, `azureDisk` etc. To learn more about how to use a custom configuration file see [here](/docs/guides/postgres/custom-config/using-custom-config.md).
+
+### spec.podTemplate
+
+- **annotations**
+- **controller**
+  - **annotations**
+- **spec**
+  - **args**
+  - **nodeSelector**
+  - **resources**
+  - **affinity**
+  - **schedulerName**
+  - **tolerations**
+  - **imagePullSecrets**
+  - **env**
+  - **initContainers**
+  - **priorityClassName**
+  - **priority**
+  - **securityContext**
+
+#### spec.podTemplate.spec.env
+
+`spec.env` is an optional field that specifies the environment variables to pass to the Postgres docker image. To know about supported environment variables, please visit [here](https://hub.docker.com/_/postgres/).
+
+Note that, Kubedb does not allow `POSTGRES_PASSWORD` environment variable to set in `spec.env`. If you want to set the superuser password, please use `spec.databaseSecret` instead described earlier.
+
+If you try to set `POSTGRES_PASSWORD` environment variable in Postgres crd, Kubed operator will reject the request with following error,
+
+```ini
+Error from server (Forbidden): error when creating "./postgres.yaml": admission webhook "postgres.validators.kubedb.com" denied the request: environment variable POSTGRES_PASSWORD is forbidden to use in Postgres spec
+```
+
+Also, note that Kubedb does not allow to update the environment variables as updating them does not have any effect once the database is created.  If you try to update environment variables, Kubedb operator will reject the request with following error,
+
+```ini
+Error from server (BadRequest): error when applying patch:
+...
+for: "./postgres.yaml": admission webhook "postgres.validators.kubedb.com" denied the request: precondition failed for:
+...
+At least one of the following was changed:
+    apiVersion
+    kind
+    name
+    namespace
+    spec.version
+    spec.standby
+    spec.streaming
+    spec.archiver
+    spec.databaseSecret
+    spec.storage
+    spec.nodeSelector
+    spec.init
+    spec.env
+```
+
+
+#### spec.podTemplate.spec.nodeSelector
+
+`spec.nodeSelector` is an optional field that specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). To learn more, see [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) .
+
+#### spec.podTemplate.spec.resources
 
 `spec.resources` is an optional field. This can be used to request compute resources required by the database pods. To learn more, visit [here](http://kubernetes.io/docs/user-guide/compute-resources/).
+
+### spec.serviceTemplate
+
+- **annotations**
+- **clusterIP**
+- **type**
+- **externalIPs**
+- **loadBalancerIP**
+- **loadBalancerSourceRanges**
+- **externalTrafficPolicy**
+- **healthCheckNodePort**
 
 ## Next Steps
 

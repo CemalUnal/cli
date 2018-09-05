@@ -13,12 +13,11 @@ section_menu_id: guides
 
 # Initialize PostgreSQL with Snapshot
 
-KubeDB supports PostgreSQL database initialization.
+KubeDB supports PostgreSQL database initialization. This tutorial will show you how to use KubeDB to initialize a PostgreSQL database with existing snapshot data.
 
 ## Before You Begin
 
-At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster.
-If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
+At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -33,51 +32,17 @@ NAME    STATUS  AGE
 demo    Active  5s
 ```
 
+We need a Snapshot to perform this initialization. If you don't have a Snapshot already, create one by following the tutorial [here](/docs/guides/postgres/snapshot/instant_backup.md).
+
+If you have changed the name of either namespace or snapshot object, please modify the YAMLs used in this tutorial accordingly.
+
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
-
-This tutorial will show you how to use KubeDB to initialize a PostgreSQL database with existing snapshot data.
-
-So, we need a Snapshot object in Succeeded phase to perform this initialization .
-
-Follow these steps to prepare this tutorial
-
-- Create Postgres object `script-postgres`, if not exists.
-
-    ```console
-    $ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/initialization/script-postgres.yaml
-    postgres "script-postgres" created
-    ```
-
-    ```console
-    $ kubedb get pg -n demo script-postgres
-    NAME                STATUS    AGE
-    script-postgres     Running   57s
-    ```
-
-- Create storage Secret.<br>In this tutorial, we need a storage Secret for backup process
-
-    ```console
-    $ echo -n '<your-project-id>' > GOOGLE_PROJECT_ID
-    $ mv downloaded-sa-json.key > GOOGLE_SERVICE_ACCOUNT_JSON_KEY
-    $ kubectl create secret -n demo generic gcs-secret \
-        --from-file=./GOOGLE_PROJECT_ID \
-        --from-file=./GOOGLE_SERVICE_ACCOUNT_JSON_KEY
-    secret "gcs-secret" created
-    ```
-
-- Take an instant backup, if not available. Follow [this](/docs/guides/postgres/snapshot/instant_backup.md#instant-backup).
-
-```console
-$ kubedb get snap -n demo --selector="kubedb.com/kind=Postgres,kubedb.com/name=script-postgres"
-NAME               DATABASE             STATUS      AGE
-instant-snapshot   pg/script-postgres   Succeeded   39s
-```
 
 ## Create PostgreSQL with Snapshot source
 
 Specify the Snapshot `name` and `namespace` in the `spec.init.snapshotSource` field of your new Postgres object.
 
-See the example Postgres object below
+Below is the YAML for PostgreSQL object created in this tutorial.
 
 ```yaml
 apiVersion: kubedb.com/v1alpha1
@@ -111,12 +76,12 @@ Here,
 Snapshot `instant-snapshot` in `demo` namespace belongs to Postgres `script-postgres`:
 
 ```console
-$ kubedb get snap -n demo instant-snapshot
-NAME               DATABASE             STATUS      AGE
-instant-snapshot   pg/script-postgres   Succeeded   12m
+$ kubectl get snap -n demo instant-snapshot
+NAME               DATABASENAME      STATUS      AGE
+instant-snapshot   script-postgres   Succeeded   2m
 ```
 
-> Note: Postgres `recovered-postgres` must have same `postgres` superuser password as Postgres `script-postgres`.
+> Note: Postgres `recovered-postgres` must have same superuser credentials as Postgres `script-postgres`.
 
 [//]: # (Describe authentication part. This should match with existing one)
 
@@ -129,8 +94,7 @@ postgres "recovered-postgres" created
 
 When PostgreSQL database is ready, KubeDB operator launches a Kubernetes Job to initialize this database using the data from Snapshot `instant-snapshot`.
 
-As a final step of initialization, KubeDB Job controller adds `kubedb.com/initialized` annotation in initialized Postgres object.
-This prevents further invocation of initialization process.
+As a final step of initialization, KubeDB Job controller adds `kubedb.com/initialized` annotation in initialized Postgres object. This prevents further invocation of initialization process.
 
 ```console
 $ kubedb describe pg -n demo recovered-postgres -S=false -W=false
@@ -175,14 +139,23 @@ Now lets connect to our Postgres `recovered-postgres`  using pgAdmin we have ins
 
 Connection information:
 
-- address: use Service `recovered-postgres.demo`
-- port: `5432`
-- database: `postgres`
-- username: `postgres`
+- Host name/address: you can use any of these
+  - Service: `recovered-postgres.demo`
+  - Pod IP: (`$ kubectl get pods recovered-postgres-0 -n demo -o yaml | grep podIP`)
+- Port: `5432`
+- Maintenance database: `postgres`
 
-Run following command to get `postgres` superuser password
+Run following command to get Username,
 
-    $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
+ ```console
+ $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_USER}' | base64 -d
+ ```
+
+Run the following command to get Password,
+
+```console
+$ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
+```
 
 In PostgreSQL, run following query to check `pg_catalog.pg_tables` to confirm initialization.
 
