@@ -40,15 +40,138 @@ import yaml
 from collections import Counter
 
 libbuild.REPO_ROOT = expandvars('$GOPATH') + '/src/github.com/kubedb/cli'
-DATABASES = ['postgres', 'elasticsearch', 'mysql', 'mongodb', 'memcached', 'redis']
+DATABASES = ['postgres', 'elasticsearch', 'etcd', 'mysql', 'mongodb', 'memcached', 'redis']
 REPO_LIST = DATABASES + ['cli', 'operator', 'apimachinery']
 KUTIL_VERSION = 'release-8.0'
 KUBEMON_VERSION = 'release-8.0'
-FORCED_DEPS = {
-    'github.com/cpuguy83/go-md2man': 'v1.0.8',
-    'github.com/json-iterator/go': '1.1.5',
-    'github.com/coreos/prometheus-operator': 'v0.23.1',
-}
+FORCED_DEPS = [
+    {
+        'package': 'github.com/cpuguy83/go-md2man',
+        'version': 'v1.0.8',
+    },
+    {
+        'package': 'github.com/json-iterator/go',
+        'version': '1.1.5',
+    },
+    {
+        'package': 'github.com/coreos/prometheus-operator',
+        'version': 'v0.23.2',
+    },
+    {
+      "package": "k8s.io/api",
+      "version": "kubernetes-1.11.3"
+    },
+    {
+      "package": "k8s.io/apiextensions-apiserver",
+      "version": "kubernetes-1.11.3"
+    },
+    {
+      "package": "k8s.io/apimachinery",
+      "repo": "https://github.com/pharmer/apimachinery.git",
+      "vcs": "git",
+      "version": "release-1.11.3"
+    },
+    {
+      "package": "k8s.io/apiserver",
+      "repo": "https://github.com/pharmer/apiserver.git",
+      "vcs": "git",
+      "version": "release-1.11.3"
+    },
+    {
+      "package": "k8s.io/client-go",
+      "repo": "https://github.com/pharmer/client-go.git",
+      "vcs": "git",
+      "version": "release-1.11.3"
+    },
+    {
+      "package": "k8s.io/kubernetes",
+      "version": "v1.11.3"
+    },
+    {
+      "package": "k8s.io/kube-aggregator",
+      "version": "kubernetes-1.11.3"
+    },
+    {
+      "package": "k8s.io/kube-openapi",
+      "version": "master"
+    },
+    {
+      "package": "github.com/appscode/kutil",
+      "version": "release-8.0"
+    },
+    {
+      "package": "github.com/appscode/kubernetes-webhook-util",
+      "version": "release-8.0"
+    },
+    {
+      "package": "kmodules.xyz/monitoring-agent-api",
+      "repo": "https://github.com/kmodules/monitoring-agent-api.git",
+      "vcs": "git",
+      "version": "release-8.0"
+    },
+    {
+      "package": "kmodules.xyz/objectstore-api",
+      "repo": "https://github.com/kmodules/objectstore-api.git",
+      "vcs": "git",
+      "version": "release-8.0"
+    },
+    {
+      "package": "kmodules.xyz/offshoot-api",
+      "repo": "https://github.com/kmodules/offshoot-api.git",
+      "vcs": "git",
+      "version": "release-8.0"
+    },
+    {
+      "package": "github.com/appscode/kubernetes-webhook-util",
+      "version": "release-8.0"
+    },
+    {
+      "package": "github.com/openshift/api",
+      "version": "31a7bbd2266d178da3c12bb83f5274d387f775e6"
+    },
+    {
+      "package": "github.com/openshift/client-go",
+      "version": "4688ad28de2e88110c0ea30179c51b9b205f99be"
+    },
+    {
+      "package": "github.com/openshift/origin",
+      "version": "fecffb2fce100260088a1b9f268c0901a778cf2b"
+    },
+    {
+      "package": "github.com/spf13/cobra",
+      "version": "v0.0.3"
+    },
+    {
+      "package": "github.com/spf13/pflag",
+      "version": "v1.0.1"
+    },
+        {
+      "package": "github.com/graymeta/stow",
+      "repo": "https://github.com/appscode/stow.git",
+      "vcs": "git",
+      "version": "master"
+    },
+    {
+      "package": "github.com/Azure/azure-sdk-for-go",
+      "version": "v14.6.0"
+    },
+    {
+      "package": "github.com/Azure/go-autorest",
+      "version": "v10.6.2"
+    },
+    {
+      "package": "github.com/aws/aws-sdk-go",
+      "version": "v1.12.7"
+    },
+    {
+      "package": "google.golang.org/api/storage/v1",
+      "version": "master"
+    },
+    {
+      "package": "cloud.google.com/go",
+      "version": "v0.2.0"
+    },
+]
 
 
 def die(status):
@@ -92,18 +215,11 @@ def glide_mod(glide_config, changes):
     for dep in glide_config['import']:
         if dep['package'] in changes:
             dep['version'] = changes[dep['package']]
-    for pkg, ver in FORCED_DEPS.iteritems():
-        found = False
-        for dep in glide_config['import']:
-            if dep['package'] == pkg:
-                dep['version'] = ver
-                found = True
+    for x in FORCED_DEPS:
+        for idx, dep in enumerate(glide_config['import']):
+            if dep['package'] == x['package']:
+                glide_config['import'][idx] = x
                 break
-        if not found:
-            glide_config['import'].append({
-                'package': pkg,
-                'version': ver,
-            })
 
 
 def glide_write(f, glide_config):
@@ -125,54 +241,7 @@ class Kitten(object):
         self.master_deps['github.com/appscode/kube-mon'] = KUBEMON_VERSION
         print self.master_deps
 
-    def revendor_db(self, repo_name):
-        revendor_branch = 'api-{0}'.format(self.seed)
-
-        repo = libbuild.GOPATH + '/src/github.com/kubedb/' + repo_name
-        print(repo)
-        print('----------------------------------------------------------------------------------------')
-        call('git reset HEAD --hard', cwd=repo)
-        call('git clean -xfd', cwd=repo)
-        git_checkout('master', cwd=repo)
-        call('git pull --rebase origin master', cwd=repo)
-        git_checkout(revendor_branch, cwd=repo)
-        with open(repo + '/glide.yaml', 'r+') as glide_file:
-            glide_config = yaml.load(glide_file)
-            glide_mod(glide_config, self.master_deps)
-            glide_write(glide_file, glide_config)
-            call('glide slow', cwd=repo)
-            if git_requires_commit(cwd=repo):
-                call('git add --all', cwd=repo)
-                call('git commit -s -a -m "Revendor api"', cwd=repo, eoe=False)
-                call('git push origin {0}'.format(revendor_branch), cwd=repo)
-            else:
-                call('git reset HEAD --hard', cwd=repo)
-
-    def revendor_server_binary(self, repo_name):
-        revendor_branch = 'api-{0}'.format(self.seed)
-
-        repo = libbuild.GOPATH + '/src/github.com/kubedb/' + repo_name
-        print(repo)
-        print('----------------------------------------------------------------------------------------')
-        call('git reset HEAD --hard', cwd=repo)
-        call('git clean -xfd', cwd=repo)
-        git_checkout('master', cwd=repo)
-        call('git pull --rebase origin master', cwd=repo)
-        git_checkout(revendor_branch, cwd=repo)
-        with open(repo + '/glide.yaml', 'r+') as glide_file:
-            glide_config = yaml.load(glide_file)
-            glide_mod(glide_config, self.master_deps)
-            glide_write(glide_file, glide_config)
-            call('glide slow', cwd=repo)
-            if git_requires_commit(cwd=repo):
-                call('git add --all', cwd=repo)
-                call('git commit -s -a -m "Revendor api"', cwd=repo, eoe=False)
-                call('git push origin {0}'.format(revendor_branch), cwd=repo)
-            else:
-                call('git reset HEAD --hard', cwd=repo)
-
-    def revendor_cli(self):
-        repo_name = 'cli'
+    def revendor_repo(self, repo_name):
         revendor_branch = 'api-{0}'.format(self.seed)
 
         repo = libbuild.GOPATH + '/src/github.com/kubedb/' + repo_name
@@ -200,18 +269,20 @@ def revendor(comp=None):
     cat = Kitten()
     if comp is None:
         for name in DATABASES:
-            cat.revendor_db(name)
+            cat.revendor_repo(name)
     elif comp == 'all':
         for name in DATABASES:
-            cat.revendor_db(name)
-        cat.revendor_server_binary('operator')
-        cat.revendor_cli()
+            cat.revendor_repo(name)
+        cat.revendor_repo('operator')
+        cat.revendor_repo('cli')
     elif comp in DATABASES:
         cat.revendor_db(comp)
     elif comp == 'operator':
-        cat.revendor_server_binary(comp)
+        cat.revendor_repo(comp)
     elif comp == 'cli':
-        cat.revendor_cli()
+        cat.revendor_repo(comp)
+    elif comp == 'apimachinery':
+        cat.revendor_repo(comp)
 
 
 if __name__ == "__main__":
