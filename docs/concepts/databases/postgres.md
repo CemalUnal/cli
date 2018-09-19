@@ -367,6 +367,10 @@ At least one of the following was changed:
     spec.podTemplate.spec.env
 ```
 
+#### spec.podTemplate.spec.imagePullSecrets
+
+`spec.podTemplate.spec.imagePullSecrets` is an optional field that points to secrets to be used for pulling docker image if you are using a private docker registry. For more details on how to use private docker registry, please visit [here](/docs/guides/postgres/private-registry/using-private-registry.md).
+
 #### spec.podTemplate.spec.nodeSelector
 
 `spec.podTemplate.nodeSelector` is an optional field that specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). To learn more, see [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) .
