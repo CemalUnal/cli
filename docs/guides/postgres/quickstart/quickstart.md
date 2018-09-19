@@ -75,6 +75,8 @@ Here, we have `standard` StorageClass in our cluster.
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
+>We have designed this tutorial to demonstrate the behaviours that are expected in production environment. If you are just testing some basic functionalities and want to avoid additional hassles due to some safety features of KubeDB, you can follow some tips from [here](/docs/guides/postgres/quickstart/quickstart.md#tips-for-testing).
+
 ## Create a PostgreSQL database
 
 KubeDB implements a Postgres CRD to define the specification of a PostgreSQL database.
@@ -88,7 +90,7 @@ metadata:
   name: quick-postgres
   namespace: demo
 spec:
-  version: "10.2"
+  version: "10.2-v1"
   doNotPause: true
   storageType: Durable
   storage:
@@ -435,6 +437,14 @@ $ kubectl delete -n demo drmn/quick-postgres
 
 $ kubectl delete ns demo
 ```
+
+## Tips for Testing
+
+If you are just testing some basic functionalities, you might want to avoid additional hassles due to some safety features that are great for production environment. You can follow these tips to avoid them.
+
+1. **Use `doNotPause: false`**. To avoid accidental deletion of database in production environment we recommend to use `spec.doNotPause: true`. It does not allow to delete Postgres crd. You have to update this to `false` first, then you will be able to delete Postgres crd. For testing purpose, you can just set `spec.donotPause: false`. You will not require to go through an additional step of updating to delete the Postgres crd.
+2. **Use `storageType: Ephemeral`**. Databases are precious. You might not want to lose your data in your production environment if database pod fail. So, we recommend to use `spec.storageType: Durable` and provide storage spec in `spec.storage` section. For testing purpose, you can just use `spec.storageType: Ephemeral`. KubeDB will use [emptyDir](https://kubernetes.io/docs/concepts/storage/volumes/#emptydir) for storage. You will not require to provide `spec.storage` section.
+3. **Use `terminationPolicy: WipeOut`**. It is nice to be able to resume database from previous one. So, we create `DormantDatabase` and preserve all your `PVCs`, `Secrets`, `Snapshots` etc. If you don't want to resume database, you can just use `spec.terminationPolicy: WipeOut`. It will not create `DormantDatabase` and it will delete everything created by KubeDB for a particular Postgres crd when you delete the crd. For more details about termination policy, please visit [here](/docs/concepts/databases/postgres.md#specterminationpolicy).
 
 ## Next Steps
 
