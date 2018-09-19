@@ -69,23 +69,23 @@ spec:
         app: kubedb
       interval: 10s
   configSource:
-      configMap:
-        name: pg-custom-config
+    configMap:
+      name: pg-custom-config
   podTemplate:
     annotation:
-      key1: value1
+      passMe: ToDatabasePod
     controller:
       annotation:
-        key2: value2
+        passMe: ToStatefulSet
     spec:
       schedulerName: my-scheduler
       nodeSelector:
         disktype: ssd
       imagePullSecrets:
-        - name: myregistrykey
+      - name: myregistrykey
       env:
-        - name: POSTGRES_DB
-          value: pgdb
+      - name: POSTGRES_DB
+        value: pgdb
       resources:
         requests:
           memory: "64Mi"
@@ -94,13 +94,12 @@ spec:
           memory: "128Mi"
           cpu: "500m"
   serviceTemplate:
-     annotation:
-      key3: value3
+    annotation:
+      passMe: ToService
     spec:
       type: NodePort
   updateStrategy: "RollingUpdate"
   terminationPolicy: "Pause"
-
 ```
 
 ### spec.version

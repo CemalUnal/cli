@@ -4,11 +4,10 @@ metadata:
   name: p1
   namespace: demo
 spec:
-  version: "10.2"
+  version: "9.6-v1"
   replicas: 2
-  doNotPause: true
   standbyMode: hot
-  streamingMode: synchronous
+  streamingMode: asynchronous
   archiver:
     storage:
       storageSecretName: s3-secret
@@ -16,7 +15,7 @@ spec:
         bucket: kubedb
   databaseSecret:
     secretName: p1-auth
-  storageType: Durable
+  storageType: "Durable"
   storage:
     storageClassName: standard
     accessModes:
@@ -34,10 +33,7 @@ spec:
     gcs:
       bucket: kubedb
       prefix: demo
-    podTemplate:
-      spec:
-        args:
-        - "TODO"
+  doNotPause: true
   monitor:
     agent: prometheus.io/coreos-operator
     prometheus:
@@ -46,17 +42,23 @@ spec:
         app: kubedb
       interval: 10s
   configSource:
-      configMap:
-        name: pg-custom-config
+    configMap:
+      name: pg-custom-config
   podTemplate:
-    annotations:
-      passTo: database_pod
+    annotation:
+      passMe: ToDatabasePod
     controller:
-      annotations:
-        passTo: statfulset
+      annotation:
+        passMe: ToStatefulSet
     spec:
+      schedulerName: my-scheduler
       nodeSelector:
-        disktype: ssd      
+        disktype: ssd
+      imagePullSecrets:
+      - name: myregistrykey
+      env:
+      - name: POSTGRES_DB
+        value: pgdb
       resources:
         requests:
           memory: "64Mi"
@@ -64,13 +66,10 @@ spec:
         limits:
           memory: "128Mi"
           cpu: "500m"
-      imagePullSecrets:
-        - name:  my-registry-secret
-      env:
-        - name: POSTGRES_DB
-          value: pgdb
   serviceTemplate:
-    annotations:
-      passTo: service
+    annotation:
+      passMe: ToService
     spec:
-      type: "ClusterIP"
+      type: NodePort
+  updateStrategy: "RollingUpdate"
+  terminationPolicy: "Pause"
