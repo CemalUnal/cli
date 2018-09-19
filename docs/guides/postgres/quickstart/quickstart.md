@@ -73,6 +73,21 @@ standard (default)   k8s.io/minikube-hostpath   5h
 
 Here, we have `standard` StorageClass in our cluster.
 
+When you have installed KubeDB, it has created `PostgresVersion` crd for all supported PostgreSQL versions. Let's check available PostgresVersions by,
+
+```console
+$ kubectl get postgresversions
+NAME       VERSION   DBIMAGE                      EXPORTERIMAGE                       TOOLSIMAGE                         AGE
+10.2       10.2      kubedb/postgres:10.2       kubedb/operator:0.8.0             kubedb/postgres-tools:10.2       1m
+10.2-v1    10.2      kubedb/postgres:10.2-v1    kubedb/postgres_exporter:v0.4.6   kubedb/postgres-tools:10.2-v1    1m
+9.6        9.6       kubedb/postgres:9.6        kubedb/operator:0.8.0             kubedb/postgres-tools:9.6        1m
+9.6-v1     9.6       kubedb/postgres:9.6-v1     kubedb/postgres_exporter:v0.4.6   kubedb/postgres-tools:9.6-v1     1m
+9.6.7      9.6.7     kubedb/postgres:9.6.7      kubedb/operator:0.8.0             kubedb/postgres-tools:9.6.7      1m
+9.6.7-v1   9.6.7     kubedb/postgres:9.6.7-v1   kubedb/postgres_exporter:v0.4.6   kubedb/postgres-tools:9.6.7-v1   1m
+```
+
+In this tutorial, we will use `10.2-v1` PostgresVersion crd to create PostgreSQL database. To know more about what is `PostgresVersion` crd and why there is `10.2` and `10.2-v1` variation, please visit [here](/docs/concepts/catalog/postgres.md). You can also see supported PostgresVersion [here](/docs/guides/postgres/README.md#supported-postgresversion-crd).
+
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
 >We have designed this tutorial to demonstrate the behaviours that are expected in production environment. If you are just testing some basic functionalities and want to avoid additional hassles due to some safety features of KubeDB, you can follow some tips from [here](/docs/guides/postgres/quickstart/quickstart.md#tips-for-testing).
@@ -127,7 +142,7 @@ KubeDB operator sets the `status.phase` to `Running` once the database is succes
 ```console
 $  kubectl get pg -n demo quick-postgres -o wide
 NAME             VERSION   STATUS    AGE
-quick-postgres   10.2      Running   1m
+quick-postgres   10.2-v1      Running   1m
 ```
 
 Let's describe Postgres object `quick-postgres`
@@ -368,7 +383,7 @@ spec:
               storage: 50Mi
           storageClassName: standard
         storageType: Durable
-        version: "10.2"
+        version: "10.2-v1"
 status:
   observedGeneration: 1
   observedGenerationHash: "8378748355133368567"
