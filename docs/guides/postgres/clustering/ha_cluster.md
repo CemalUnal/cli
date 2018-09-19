@@ -33,9 +33,10 @@ metadata:
   name: warm-postgres
   namespace: demo
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   replicas: 3
   standbyMode: warm
+  storageType: Ephemeral
 ```
 
 In this examples:
@@ -56,9 +57,10 @@ metadata:
   name: hot-postgres
   namespace: demo
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   replicas: 3
   standbyMode: hot
+  storageType: Ephemeral
 ```
 
 In this examples:

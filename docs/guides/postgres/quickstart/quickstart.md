@@ -23,6 +23,7 @@ This tutorial will show you how to use KubeDB to run a PostgreSQL database.
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
+**Install KubeDB:**
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
 To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
@@ -35,6 +36,8 @@ $ kubectl get ns demo
 NAME    STATUS  AGE
 demo    Active  5s
 ```
+
+**Install pgAdmin:**
 
 This tutorial will also use a pgAdmin to connect and test PostgreSQL database, once it is running.
 
@@ -63,6 +66,8 @@ http://192.168.99.100:31983
 
 To log into the pgAdmin, use username __`admin`__ and password __`admin`__.
 
+**Find Available StorageClass:**
+
 We will have to provide `StorageClass` in Postgres crd specification. Check available `StorageClass` in your cluster using following command,
 
 ```console
@@ -72,6 +77,8 @@ standard (default)   k8s.io/minikube-hostpath   5h
 ```
 
 Here, we have `standard` StorageClass in our cluster.
+
+**Find Available PostgresVersion:**
 
 When you have installed KubeDB, it has created `PostgresVersion` crd for all supported PostgreSQL versions. Let's check available PostgresVersions by,
 
@@ -272,7 +279,7 @@ If you want to use custom password, please create the secret manually and specif
 
 Now, you can connect to this database from the pgAdmin dashboard using `quick-postgres.demo` service and *username* and *password* created in `quick-postgres-auth` secret.
 
-Connection information:
+**Connection information:**
 
 - Host name/address: you can use any of these
   - Service: `quick-postgres.demo`
@@ -280,19 +287,19 @@ Connection information:
 - Port: `5432`
 - Maintenance database: `postgres`
 
-Run following command to get Username,
+- Username: Run following command to get *username*,
 
- ```console
- $ kubectl get secrets -n demo quick-postgres-auth -o jsonpath='{.data.\POSTGRES_USER}' | base64 -d
-postgres
- ```
+  ```console
+  $ kubectl get secrets -n demo quick-postgres-auth -o jsonpath='{.data.\POSTGRES_USER}' | base64 -d
+  postgres
+  ```
 
-Run the following command to get Password,
+- Password: Run the following command to get *password*,
 
-```console
-$ kubectl get secrets -n demo quick-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
-DD8i56UBIcs63PVO
-```
+  ```console
+  $ kubectl get secrets -n demo quick-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
+  DD8i56UBIcs63PVO
+  ```
 
 Now, go to pgAdmin dashboard and connect to the database using the connection information as shown below,
 
