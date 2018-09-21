@@ -19,6 +19,8 @@ KubeDB supports PostgreSQL database initialization. This tutorial will show you 
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
+**Install KubeDB:**
+
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
 To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
@@ -32,6 +34,8 @@ NAME    STATUS  AGE
 demo    Active  5s
 ```
 
+**Create Snapshot:**
+
 We need a Snapshot to perform this initialization. If you don't have a Snapshot already, create one by following the tutorial [here](/docs/guides/postgres/snapshot/instant_backup.md).
 
 If you have changed the name of either namespace or snapshot object, please modify the YAMLs used in this tutorial accordingly.
@@ -40,7 +44,7 @@ If you have changed the name of either namespace or snapshot object, please modi
 
 ## Create PostgreSQL with Snapshot source
 
-Specify the Snapshot `name` and `namespace` in the `spec.init.snapshotSource` field of your new Postgres object.
+You have to specify the Snapshot `name` and `namespace` in the `spec.init.snapshotSource` field of your new Postgres object.
 
 Below is the YAML for PostgreSQL object created in this tutorial.
 
@@ -51,7 +55,7 @@ metadata:
   name: recovered-postgres
   namespace: demo
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   databaseSecret:
     secretName: script-postgres-auth
   storage:
@@ -78,7 +82,7 @@ Snapshot `instant-snapshot` in `demo` namespace belongs to Postgres `script-post
 ```console
 $ kubectl get snap -n demo instant-snapshot
 NAME               DATABASENAME      STATUS      AGE
-instant-snapshot   script-postgres   Succeeded   2m
+instant-snapshot   script-postgres   Succeeded   56s
 ```
 
 > Note: Postgres `recovered-postgres` must have same superuser credentials as Postgres `script-postgres`.
@@ -89,7 +93,7 @@ Now, create the Postgres object.
 
 ```console
 $ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/initialization/recovered-postgres.yaml
-postgres "recovered-postgres" created
+postgres.kubedb.com/recovered-postgres created
 ```
 
 When PostgreSQL database is ready, KubeDB operator launches a Kubernetes Job to initialize this database using the data from Snapshot `instant-snapshot`.
@@ -135,9 +139,11 @@ Events:
   35s         35s        1         Postgres operator   Normal     Successful           Successfully created Service
 ```
 
-Now lets connect to our Postgres `recovered-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial.
+**Verify Initialization:**
 
-Connection information:
+Now, let's connect to our Postgres `recovered-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial to verify that the database has been successfully initialized.
+
+Connection Information:
 
 - Host name/address: you can use any of these
   - Service: `recovered-postgres.demo`
@@ -145,17 +151,19 @@ Connection information:
 - Port: `5432`
 - Maintenance database: `postgres`
 
-Run following command to get Username,
+- Username: Run following command to get *username*,
 
- ```console
- $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_USER}' | base64 -d
- ```
+  ```console
+  $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_USER}' | base64 -d
+  postgres
+  ```
 
-Run the following command to get Password,
+- Password: Run the following command to get *password*,
 
-```console
-$ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
-```
+  ```console
+  $ kubectl get secrets -n demo script-postgres-auth -o jsonpath='{.data.\POSTGRES_PASSWORD}' | base64 -d
+  STXiSACabNli5xoD
+  ```
 
 In PostgreSQL, run following query to check `pg_catalog.pg_tables` to confirm initialization.
 
