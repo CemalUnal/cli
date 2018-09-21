@@ -21,6 +21,8 @@ This tutorial will show how to take instant backup of PostgreSQL database deploy
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
+**Install KubeDB:**
+
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
 To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
@@ -35,6 +37,8 @@ demo    Active  5s
 ```
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
+
+**Prepare Database:**
 
 We need an Postgres database running to perform backup operation. If you don't have a Postgres instance running, let's create one.
 
@@ -51,8 +55,8 @@ configmap/pg-init-script created
 Now, create a Postgres crd to initialize from the script we have provided in the ConfigMap.
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/initialization/script-postgres.yaml
-postgres "script-postgres" created
+$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/initialization/script-postgres.yaml
+postgres.kubedb.com/script-postgres created
 ```
 
 Below the YAML for Postgres crd we have just created,
@@ -64,7 +68,7 @@ metadata:
   name: script-postgres
   namespace: demo
 spec:
-  version: "10.2"
+  version: "9.6-v1"
   storage:
     storageClassName: "standard"
     accessModes:
@@ -82,8 +86,8 @@ Wait until Postgres object goes in `Running` state. Verify that it is in `Runnin
 
 ```console
 $ kubectl get pg -n demo script-postgres
-NAME                STATUS      AGE
-script-postgres     Running     11m
+NAME              VERSION   STATUS    AGE
+script-postgres   9.6-v1    Running   8m
 ```
 
 Now, we will take backup of this `script-postgres` PostgreSQL database.
@@ -175,7 +179,7 @@ Now, let's create a Snapshot object.
 
 ```console
 $ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/snapshot/instant-snapshot.yaml
-snapshot "instant-snapshot" created
+snapshot.kubedb.com/instant-snapshot created
 ```
 
 Verify that the Snapshot has been successfully created,
@@ -183,7 +187,7 @@ Verify that the Snapshot has been successfully created,
 ```console
 $ kubectl get snap -n demo --selector="kubedb.com/kind=Postgres,kubedb.com/name=script-postgres"
 NAME               DATABASENAME      STATUS    AGE
-instant-snapshot   script-postgres   Running   29s
+instant-snapshot   script-postgres   Running   58s
 ```
 
 Notice that the `STATUS` field is showing `Running`. It means the backup is running.
@@ -197,7 +201,7 @@ Verify that the backup has been completed successfully using following command,
 ```console
 $ kubectl get snap -n demo --selector="kubedb.com/kind=Postgres,kubedb.com/name=script-postgres"
 NAME               DATABASENAME      STATUS      AGE
-instant-snapshot   script-postgres   Succeeded   1h
+instant-snapshot   script-postgres   Succeeded   36s
 ```
 
 Here, `STATUS` `Succeeded` means the backup has been completed successfully. Now, navigate to the bucket to see the backed up file.
@@ -339,7 +343,6 @@ snapshot "instant-snapshot" deleted
 To cleanup the Kubernetes resources created by this tutorial, run:
 
 ```console
-$ kubectl patch -n demo pg/script-postgres -p '{"spec":{"doNotPause":false}}' --type="merge"
 $ kubectl delete -n demo pg/script-postgres
 
 $ kubectl patch -n demo drmn/script-postgres -p '{"spec":{"wipeOut":true}}' --type="merge"

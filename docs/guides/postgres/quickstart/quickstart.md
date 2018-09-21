@@ -44,7 +44,7 @@ This tutorial will also use a pgAdmin to connect and test PostgreSQL database, o
 Run the following command to install pgAdmin,
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/quickstart/pgadmin.yaml
+$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/quickstart/pgadmin.yaml
 deployment.apps/pgadmin created
 service/pgadmin created
 
@@ -84,14 +84,16 @@ When you have installed KubeDB, it has created `PostgresVersion` crd for all sup
 
 ```console
 $ kubectl get postgresversions
-NAME       VERSION   DBIMAGE                      EXPORTERIMAGE                       TOOLSIMAGE                         AGE
-10.2       10.2      kubedb/postgres:10.2       kubedb/operator:0.8.0             kubedb/postgres-tools:10.2       1m
-10.2-v1    10.2      kubedb/postgres:10.2-v1    kubedb/postgres_exporter:v0.4.6   kubedb/postgres-tools:10.2-v1    1m
-9.6        9.6       kubedb/postgres:9.6        kubedb/operator:0.8.0             kubedb/postgres-tools:9.6        1m
-9.6-v1     9.6       kubedb/postgres:9.6-v1     kubedb/postgres_exporter:v0.4.6   kubedb/postgres-tools:9.6-v1     1m
-9.6.7      9.6.7     kubedb/postgres:9.6.7      kubedb/operator:0.8.0             kubedb/postgres-tools:9.6.7      1m
-9.6.7-v1   9.6.7     kubedb/postgres:9.6.7-v1   kubedb/postgres_exporter:v0.4.6   kubedb/postgres-tools:9.6.7-v1   1m
+NAME       VERSION   DB_IMAGE                   DEPRECATED   AGE
+10.2       10.2      kubedb/postgres:10.2       true         16s
+10.2-v1    10.2      kubedb/postgres:10.2-v1                 16s
+9.6        9.6       kubedb/postgres:9.6        true         19s
+9.6-v1     9.6       kubedb/postgres:9.6-v1                  18s
+9.6.7      9.6.7     kubedb/postgres:9.6.7      true         18s
+9.6.7-v1   9.6.7     kubedb/postgres:9.6.7-v1                17s
 ```
+
+Notice the `DEPRECATED` column. Here, `true` means that this PostgresVersion is deprecated for current KubeDB version. KubeDB will not work for deprecated PostgresVersion.
 
 In this tutorial, we will use `10.2-v1` PostgresVersion crd to create PostgreSQL database. To know more about what is `PostgresVersion` crd and why there is `10.2` and `10.2-v1` variation, please visit [here](/docs/concepts/catalog/postgres.md). You can also see supported PostgresVersion [here](/docs/guides/postgres/README.md#supported-postgresversion-crd).
 
@@ -412,7 +414,7 @@ In this tutorial, the DormantDatabase `quick-postgres` can be resumed by creatin
 Let's create the original Postgres object,
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/kubectl apply -f ./quickstart/quick-postgres.yaml
+$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/kubectl apply -f ./quickstart/quick-postgres.yaml
 postgres.kubedb.com/quick-postgres created
 ```
 

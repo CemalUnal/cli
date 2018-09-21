@@ -45,7 +45,7 @@ metadata:
   name: wal-postgres
   namespace: demo
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   replicas: 2
   storage:
     storageClassName: "standard"
@@ -167,7 +167,6 @@ From the above image, you can see that the archived data is stored in a folder `
 To cleanup the Kubernetes resources created by this tutorial, run:
 
 ```console
-$ kubectl patch -n demo pg/wal-postgres -p '{"spec":{"doNotPause":false}}' --type="merge"
 $ kubectl delete -n demo pg/wal-postgres
 
 $ kubectl patch -n demo drmn/wal-postgres -p '{"spec":{"wipeOut":true}}' --type="merge"

@@ -66,7 +66,7 @@ metadata:
   name: scheduled-pg
   namespace: demo
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   replicas: 3
   storage:
     storageClassName: "standard"
@@ -101,8 +101,8 @@ When PostgreSQL is successfully created, KubeDB operator creates a Snapshot obje
 
 ```console
 $ kubectl get snap -n demo --selector="kubedb.com/kind=Postgres,kubedb.com/name=scheduled-pg"
-NAME                           DATABASE          STATUS      AGE
-scheduled-pg-20180208-105341   pg/scheduled-pg   Succeeded   32s
+NAME                           DATABASENAME   STATUS      AGE
+scheduled-pg-20180921-090932   scheduled-pg   Succeeded   32s
 ```
 
 ## Update Postgres to disable periodic backups
@@ -150,7 +150,6 @@ script-postgres-20180208-105625   pg/script-postgres   Succeeded   1m
 To cleanup the Kubernetes resources created by this tutorial, run:
 
 ```console
-$ kubectl patch -n demo pg/scheduled-pg -p '{"spec":{"doNotPause":false}}' --type="merge"
 $ kubectl delete -n demo pg/scheduled-pg
 
 $ kubectl patch -n demo drmn/scheduled-pg -p '{"spec":{"wipeOut":true}}' --type="merge"
