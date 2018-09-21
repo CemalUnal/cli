@@ -69,8 +69,8 @@ spec:
 Create above Postgres object with following command
 
 ```console
-$ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/quickstart/quick-postgres.yaml 
-postgres.kubedb.com/quick-postgres created
+$ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/quickstart/quick-postgres.yaml
+postgres "quick-postgres" created
 ```
 
 When this Postgres object is created, KubeDB operator creates Role, ServiceAccount and RoleBinding with the matching PostgreSQL name and uses that ServiceAccount name in the corresponding StatefulSet.

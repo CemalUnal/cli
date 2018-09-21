@@ -83,19 +83,19 @@ else
   # ref: https://stackoverflow.com/a/27776822/244009
   case "$(uname -s)" in
     Darwin)
-      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-darwin-amd64
+      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-darwin-amd64
       chmod +x onessl
       export ONESSL=./onessl
       ;;
 
     Linux)
-      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-linux-amd64
+      curl -fsSL -o onessl https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-linux-amd64
       chmod +x onessl
       export ONESSL=./onessl
       ;;
 
     CYGWIN* | MINGW32* | MSYS*)
-      curl -fsSL -o onessl.exe https://github.com/kubepack/onessl/releases/download/0.3.0/onessl-windows-amd64.exe
+      curl -fsSL -o onessl.exe https://github.com/kubepack/onessl/releases/download/0.7.0/onessl-windows-amd64.exe
       chmod +x onessl.exe
       export ONESSL=./onessl.exe
       ;;
@@ -117,7 +117,7 @@ export KUBEDB_ENABLE_VALIDATING_WEBHOOK=false
 export KUBEDB_ENABLE_MUTATING_WEBHOOK=false
 export KUBEDB_CATALOG=${KUBEDB_CATALOG:-all}
 export KUBEDB_DOCKER_REGISTRY=kubedb
-export KUBEDB_OPERATOR_TAG=0.8.0
+export KUBEDB_OPERATOR_TAG=0.9.0-beta.0
 export KUBEDB_OPERATOR_NAME=operator
 export KUBEDB_IMAGE_PULL_SECRET=
 export KUBEDB_IMAGE_PULL_POLICY=IfNotPresent
@@ -127,7 +127,7 @@ export KUBEDB_PURGE=0
 export KUBEDB_ENABLE_STATUS_SUBRESOURCE=false
 
 export APPSCODE_ENV=${APPSCODE_ENV:-prod}
-export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubedb/cli/0.8.0/"
+export SCRIPT_LOCATION="curl -fsSL https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/"
 if [ "$APPSCODE_ENV" = "dev" ]; then
   detect_tag
   export SCRIPT_LOCATION="cat "
@@ -282,7 +282,7 @@ if [ "$KUBEDB_UNINSTALL" -eq 1 ]; then
 
   echo "waiting for kubedb operator pod to stop running"
   for (( ; ; )); do
-    pods=($(kubectl get pods --all-namespaces -l app=kubedb -o jsonpath='{range .items[*]}{.metadata.name} {end}'))
+    pods=($(kubectl get pods --namespace $KUBEDB_NAMESPACE -l app=kubedb -o jsonpath='{range .items[*]}{.metadata.name} {end}'))
     total=${#pods[*]}
     if [ $total -eq 0 ]; then
       break
@@ -310,7 +310,7 @@ if [ "$KUBEDB_UNINSTALL" -eq 1 ]; then
           i+=1
         fi
         # remove finalizers
-        kubectl patch ${crd}.kubedb.com $name -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge
+        kubectl patch ${crd}.kubedb.com $name -n $namespace -p '{"metadata":{"finalizers":[]}}' --type=merge || true
         # delete crd object
         echo "deleting ${crd} $namespace/$name"
         kubectl delete ${crd}.kubedb.com $name -n $namespace --ignore-not-found=true
@@ -409,6 +409,7 @@ if [ "$KUBEDB_OPERATOR_NAME" = "operator" ]; then
 fi
 
 if [ "$KUBEDB_CATALOG" = "all" ] || [ "$KUBEDB_CATALOG" = "elasticsearch" ]; then
+  echo
   echo "installing KubeDB Elasticsearch catalog"
   ${SCRIPT_LOCATION}hack/deploy/kubedb-catalog/elasticsearch.yaml | $ONESSL envsubst | kubectl apply -f -
 fi

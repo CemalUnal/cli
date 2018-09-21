@@ -174,7 +174,7 @@ To learn how to configure other storage destinations for snapshot data, please v
 Now, let's create a Snapshot object.
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/snapshot/instant-snapshot.yaml
+$ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/snapshot/instant-snapshot.yaml
 snapshot "instant-snapshot" created
 ```
 

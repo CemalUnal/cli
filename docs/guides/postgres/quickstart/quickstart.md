@@ -136,8 +136,8 @@ Here,
 Let's create Postgres crd,
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/quickstart/quick-postgres.yaml 
-postgres.kubedb.com/quick-postgres created
+$ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/quickstart/quick-postgres.yaml
+postgres "quick-postgres" created
 ```
 
 KubeDB operator watches for Postgres objects using Kubernetes api. When a Postgres object is created, KubeDB operator will create a new StatefulSet and two ClusterIP Service with the matching name. KubeDB operator will also create a governing service for StatefulSet with the name `kubedb`, if one is not already present.

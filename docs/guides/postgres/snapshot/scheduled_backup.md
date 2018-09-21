@@ -93,7 +93,7 @@ Here,
 Let's create a Postgres crd with backupSchedule,
 
 ```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.8.0/docs/examples/postgres/snapshot/scheduled-pg.yaml
+$ kubedb create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/snapshot/scheduled-pg.yaml
 postgres "scheduled-pg" created
 ```
 
