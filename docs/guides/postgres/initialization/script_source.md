@@ -20,7 +20,7 @@ KubeDB supports PostgreSQL database initialization. This tutorial will show you 
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
-**Install KubeDB:**
+#### Install KubeDB:
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -41,7 +41,7 @@ demo    Active  5s
 
 PostgreSQL supports initialization with `.sh`, `.sql` and `.sql.gz` files. In this tutorial, we will use `data.sql` script from [postgres-init-scripts](https://github.com/kubedb/postgres-init-scripts.git) git repository to create a TABLE `dashboard` in `data` Schema.
 
-**Prepare Initialization Scripts:**
+#### Prepare Initialization Scripts:
 
 As [gitRepo](https://kubernetes.io/docs/concepts/storage/volumes/#gitrepo) volume has been deprecated, we will use a ConfigMap as script source. You can use any Kubernetes supported [volume](https://kubernetes.io/docs/concepts/storage/volumes) as script source.
 
@@ -55,7 +55,7 @@ $ kubectl create configmap -n demo pg-init-script \
 configmap/pg-init-script created
 ```
 
-**Create Postgres:**
+#### Create Postgres:
 
 Now, create the Postgres crd which YAML we have shown above,
 
@@ -188,11 +188,11 @@ Events:
   Normal  Successful  57s   Postgres operator  Successfully patched Postgres
 ```
 
-**Verify Initialization:**
+#### Verify Initialization:
 
 Now let's connect to our Postgres `script-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial to verify that the database has been initialized successfully.
 
-Connection Information:
+**Connection Information:**
 
 - Host name/address: you can use any of these
   - Service: `script-postgres.demo`

@@ -57,7 +57,7 @@ We modify original PostgreSQL docker image to support additional features like W
 
 ### spec.deprecated
 
-`spec.deprecated` is an optional field that specifies whether or not the docker images specified here is supported by the current KubeDB operator. For example, we have modified `kubedb/postgres:10.2` docker image to support custom configuration and re-tagged as `kubedb/postgres:10.2-v1`. Now, KubeDB `0.9.0` supports providing custom configuration which required `kubedb/postgres:10.2-v1` docker image. So, we have marked `kubedb/postgres:10.2` as deprecated for KubeDB `0.9.0`.
+`spec.deprecated` is an optional field that specifies whether the docker images specified here is supported by the current KubeDB operator. For example, we have modified `kubedb/postgres:10.2` docker image to support custom configuration and re-tagged as `kubedb/postgres:10.2-v1`. Now, KubeDB `0.9.0` supports providing custom configuration which required `kubedb/postgres:10.2-v1` docker image. So, we have marked `kubedb/postgres:10.2` as deprecated for KubeDB `0.9.0`.
 
 The default value of this field is `false`. If `spec.depcrecated` is set `true`, KubeDB operator will not create the database and other respective resources for this version.
 

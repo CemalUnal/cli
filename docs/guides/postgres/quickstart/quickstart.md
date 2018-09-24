@@ -23,7 +23,7 @@ This tutorial will show you how to use KubeDB to run a PostgreSQL database.
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
-**Install KubeDB:**
+#### Install KubeDB:
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -38,7 +38,7 @@ NAME    STATUS  AGE
 demo    Active  5s
 ```
 
-**Install pgAdmin:**
+#### Install pgAdmin:
 
 This tutorial will also use a pgAdmin to connect and test PostgreSQL database, once it is running.
 
@@ -67,7 +67,7 @@ http://192.168.99.100:31983
 
 To log into the pgAdmin, use username __`admin`__ and password __`admin`__.
 
-**Find Available StorageClass:**
+#### Find Available StorageClass:
 
 We will have to provide `StorageClass` in Postgres crd specification. Check available `StorageClass` in your cluster using following command,
 
@@ -79,7 +79,7 @@ standard (default)   k8s.io/minikube-hostpath   5h
 
 Here, we have `standard` StorageClass in our cluster.
 
-**Find Available PostgresVersion:**
+#### Find Available PostgresVersion:
 
 When you have installed KubeDB, it has created `PostgresVersion` crd for all supported PostgreSQL versions. Let's check available PostgresVersions by,
 

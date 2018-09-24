@@ -361,6 +361,7 @@ At least one of the following was changed:
     spec.streaming
     spec.archiver
     spec.databaseSecret
+    spec.storageType
     spec.storage
     spec.podTemplate.spec.nodeSelector
     spec.init
@@ -373,7 +374,7 @@ At least one of the following was changed:
 
 #### spec.podTemplate.spec.nodeSelector
 
-`spec.podTemplate.nodeSelector` is an optional field that specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). To learn more, see [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) .
+`spec.podTemplate.spec.nodeSelector` is an optional field that specifies a map of key-value pairs. For the pod to be eligible to run on a node, the node must have each of the indicated key-value pairs as labels (it can have additional labels as well). To learn more, see [here](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector) .
 
 #### spec.podTemplate.spec.resources
 
