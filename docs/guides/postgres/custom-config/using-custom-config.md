@@ -17,8 +17,7 @@ KubeDB supports providing custom configuration for PostgreSQL. This tutorial wil
 
 ## Before You Begin
 
-At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster.
-If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
+At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -58,8 +57,8 @@ shared_buffers=256MB
 Now, create a configMap with this configuration file.
 
 ```console
- $ kubectl create configmap -n demo pg-custom-config --from-file=./user.conf
-configmap "pg-custom-config" created
+ $ kubectl create configmap -n demo pg-custom-config --from-file=https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/custom-config/user.conf 
+configmap/pg-custom-config created
 ```
 
 Verify the config map has the configuration file.
@@ -82,8 +81,8 @@ metadata:
 Now, create Postgres crd specifying `spec.configSource` field.
 
 ```console
-$ kubectl apply -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/custom-config/pg-custom-config.yaml
-postgres.kubedb.com "custom-postgres" created
+$ kubectl apply -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/custom-config/pg-custom-config.yaml 
+postgres.kubedb.com/custom-postgres created
 ```
 
 Below is the YAML for the Postgres crd we just created.
@@ -95,10 +94,10 @@ metadata:
   name: custom-postgres
   namespace: demo
 spec:
-  version: "9.6"
-  configFile:
-      configMap:
-        name: pg-custom-config
+  version: "9.6-v1"
+  configSource:
+    configMap:
+      name: pg-custom-config
   doNotPause: true
   storage:
     storageClassName: "standard"

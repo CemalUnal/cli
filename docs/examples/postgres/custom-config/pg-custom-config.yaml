@@ -6,8 +6,8 @@ metadata:
 spec:
   version: "9.6-v1"
   configSource:
-      configMap:
-        name: pg-custom-config
+    configMap:
+      name: pg-custom-config
   doNotPause: true
   storage:
     storageClassName: "standard"
