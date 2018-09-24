@@ -280,6 +280,7 @@ Postgres:
 - _spec.streaming_
 - _spec.archiver_
 - _spec.databaseSecret_
+- _spec.storageType_
 - _spec.storage_
 - _spec.nodeSelector_
 - _spec.init_
@@ -287,6 +288,7 @@ Postgres:
 Elasticsearch:
 
 - _spec.version_
+- _spec.storageType_
 - _spec.storage_
 - _spec.nodeSelector_
 - _spec.init_
