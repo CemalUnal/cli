@@ -13,14 +13,14 @@ section_menu_id: guides
 
 ## Setting up Custom PostgresVersions
 
-PostgresVersions are KubeDB crds that define the docker images KubeDB will use when deploying a postgres database.
+PostgresVersions are KubeDB crds that define the docker images KubeDB will use when deploying a postgres database. For more details about PostgresVersion crd, please visit [here](/docs/concepts/catalog/postgres.md).
 
 ## Creating a Custom Postgres Database Image for KubeDB
 
 The best way to create a custom image is to build on top of the existing kubedb image.
 
 ```docker
-FROM kubedb/postgres:10.2
+FROM kubedb/postgres:10.2-v1
 
 ENV TIMESCALEDB_VERSION 0.9.1
 
@@ -54,7 +54,7 @@ RUN set -ex \
 RUN sed -r -i "s/[#]*\s*(shared_preload_libraries)\s*=\s*'(.*)'/\1 = 'timescaledb,\2'/;s/,'/'/" /scripts/primary/postgresql.conf
 ```
 
-From there we would define a PostgresVersion that contains this new image. Lets say we tagged it as `myco/postgres:timescale-0.9.1`
+From there, we would define a PostgresVersion that contains this new image. Lets say we tagged it as `myco/postgres:timescale-0.9.1`
 
 ```yaml
 apiVersion: kubedb.com/v1alpha1
@@ -68,7 +68,7 @@ spec:
   exporter:
     image: "kubedb/operator:0.9.0-beta.0"
   tools:
-    image: "kubedb/postgres-tools:10.2"
+    image: "kubedb/postgres-tools:10.2-v1"
 ```
 
 Once we add this PostgresVersion we can use it in a new Postgres like:
