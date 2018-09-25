@@ -201,7 +201,7 @@ kind: Postgres
 metadata:
   name: postgres-db
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   init:
     scriptSource:
       configMap:
@@ -223,7 +223,7 @@ kind: Postgres
 metadata:
   name: postgres-db
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   databaseSecret:
     secretName: postgres-old-auth
   init:
@@ -250,7 +250,7 @@ kind: Postgres
 metadata:
   name: postgres-db
 spec:
-  version: "9.6"
+  version: "9.6-v1"
   databaseSecret:
     secretName: postgres-old
   init:
