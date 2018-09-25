@@ -47,7 +47,7 @@ spec:
 `metadata.name` is a required field that specify the name of the `PostgresVersion` crd. You have to specify this name in `spec.version` field of [Postgres](/docs/concepts/databases/postgres.md) crd.
 
 We follow this convention for naming PostgresVersion crd:
-- Name format: `{Original PosgreSQL image verion}-{modification tag}`
+- Name format: `{Original PostgreSQL image version}-{modification tag}`
 
 We modify original PostgreSQL docker image to support additional features like WAL archiving, clustering etc. and re-tag the image with v1,v2 etc. modification tag. An image with higher modification tag will have more feature than the images with lower modification tag. Hence, it is recommended to use PostgresVersion crd with highest modification tag to enjoy latest features.
 
