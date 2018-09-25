@@ -38,57 +38,7 @@ demo    Active  5s
 
 ## Prepare Database
 
-We need an Postgres database running to perform backup operation. If you don't have a Postgres instance running, let's create one.
-
-Here, we are going to create a Postgres database and initialize it from script. For more details on how to initialize Postgres database from script in KubeDB, please visit [here](/docs/guides/postgres/initialization/script_source.md).
-
-First, create a ConfigMap with initialization script,
-
-```console
-$ kubectl create configmap -n demo pg-init-script \
---from-literal=data.sql="$(curl -fsSL https://raw.githubusercontent.com/kubedb/postgres-init-scripts/master/data.sql)"
-configmap/pg-init-script created
-```
-
-Now, create a Postgres crd to initialize from the script we have provided in the ConfigMap.
-
-```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/initialization/script-postgres.yaml
-postgres.kubedb.com/script-postgres created
-```
-
-Below the YAML for Postgres crd we have just created,
-
-```yaml
-apiVersion: kubedb.com/v1alpha1
-kind: Postgres
-metadata:
-  name: script-postgres
-  namespace: demo
-spec:
-  version: "9.6-v1"
-  storage:
-    storageClassName: "standard"
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: 50Mi
-  init:
-    scriptSource:
-      configMap:
-        name: pg-init-script
-```
-
-Wait until Postgres object goes in `Running` state. Verify that it is in `Running` state using following command,
-
-```console
-$ kubectl get pg -n demo script-postgres
-NAME              VERSION   STATUS    AGE
-script-postgres   9.6-v1    Running   8m
-```
-
-Now, we will take backup of this `script-postgres` PostgreSQL database.
+We need an Postgres database running to perform backup operation. If you don't have a Postgres instance running, create one and initialize it by following the tutorial [here](/docs/guides/postgres/initialization/script_source.md).
 
 ## Instant Backup
 
