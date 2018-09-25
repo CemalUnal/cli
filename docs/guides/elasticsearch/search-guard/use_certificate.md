@@ -1,12 +1,12 @@
 ---
 title: Search Guard Use Certificate
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: es-use-certificate-search-guard
     name: Use Certificate
     parent: es-search-guard-elasticsearch
     weight: 20
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).

@@ -1,12 +1,12 @@
 ---
 title: Monitor PostgreSQL using Builtin Prometheus Discovery
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-using-builtin-prometheus-monitoring
     name: Builtin Prometheus Discovery
     parent: pg-monitoring-postgres
     weight: 10
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 
@@ -79,7 +79,7 @@ NAME                    VERSION   STATUS    AGE
 builtin-prom-postgres   9.6-v1    Running   1m
 ```
 
-KubeDB will create a separate stats service with name `builtin-prom-postgres-stats` for monitoring purpose.
+KubeDB will create a separate stats service with name `{Postgres name}-stats` for monitoring purpose.
 
 ```console
 $ kubectl get svc -n demo
@@ -136,7 +136,6 @@ Events:  <none>
 You can see that the service contains following annotations.
 
 ```console
-monitoring.appscode.com/agent=prometheus.io/builtin
 prometheus.io/path=/kubedb.com/v1alpha1/namespaces/demo/postgreses/builtin-prom-postgres/metrics
 prometheus.io/port=56790
 prometheus.io/scrape=true

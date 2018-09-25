@@ -1,12 +1,12 @@
 ---
 title: Run PostgreSQL using Private Registry
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-using-private-registry-private-registry
     name: Quickstart
     parent: pg-private-registry-postgres
     weight: 10
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).
@@ -32,7 +32,7 @@ demo    Active  5s
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
-#### Prepare Private Docker Registry
+## Prepare Private Docker Registry
 You will also need a docker private [registry](https://docs.docker.com/registry/) or [private repository](https://docs.docker.com/docker-hub/repos/#private-repositories). In this tutorial we will use private repository of [docker hub](https://hub.docker.com/).
 
 You have to push the required images from KubeDB's [Docker hub account](https://hub.docker.com/r/kubedb/) into your private registry.
@@ -55,8 +55,7 @@ $ docker pull kubedb/postgres_exporter:v0.4.6 ; docker tag kubedb/postgres_expor
 
 ## Create ImagePullSecret
 
-ImagePullSecrets is a type of a Kubernetes Secret whose sole purpose is to pull private images from a Docker registry.
-It allows you to specify the url of the docker registry, credentials for logging in and the image name of your private docker image.
+ImagePullSecrets is a type of a Kubernetes Secret whose sole purpose is to pull private images from a Docker registry. It allows you to specify the url of the docker registry, credentials for logging in and the image name of your private docker image.
 
 Run the following command, substituting the appropriate uppercase values to create an image pull secret for your private Docker registry:
 

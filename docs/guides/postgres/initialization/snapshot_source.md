@@ -1,12 +1,12 @@
 ---
 title: Initialize Postgres using Snapshot Source
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-snapshot-source-initialization
     name: From Snapshot
     parent: pg-initialization-postgres
     weight: 15
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > Don't know how backup works?  Check [tutorial](/docs/guides/postgres/snapshot/instant_backup.md) on Instant Backup.
@@ -18,8 +18,6 @@ KubeDB supports PostgreSQL database initialization. This tutorial will show you 
 ## Before You Begin
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
-
-#### Install KubeDB:
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -34,7 +32,7 @@ NAME    STATUS  AGE
 demo    Active  5s
 ```
 
-#### Create Snapshot:
+## Prepare Snapshot
 
 We need a Snapshot to perform this initialization. If you don't have a Snapshot already, create one by following the tutorial [here](/docs/guides/postgres/snapshot/instant_backup.md).
 
@@ -139,7 +137,7 @@ Events:
   35s         35s        1         Postgres operator   Normal     Successful           Successfully created Service
 ```
 
-#### Verify Initialization:
+## Verify Initialization
 
 Now, let's connect to our Postgres `recovered-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial to verify that the database has been successfully initialized.
 

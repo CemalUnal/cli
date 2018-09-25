@@ -1,12 +1,12 @@
 ---
 title: Initialize Postgres using Script Source
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-script-source-initialization
     name: Using Script
     parent: pg-initialization-postgres
     weight: 10
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 
@@ -19,8 +19,6 @@ KubeDB supports PostgreSQL database initialization. This tutorial will show you 
 ## Before You Begin
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
-
-#### Install KubeDB:
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -37,11 +35,9 @@ demo    Active  5s
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
-## Create PostgreSQL with script source
+## Prepare Initialization Scripts
 
 PostgreSQL supports initialization with `.sh`, `.sql` and `.sql.gz` files. In this tutorial, we will use `data.sql` script from [postgres-init-scripts](https://github.com/kubedb/postgres-init-scripts.git) git repository to create a TABLE `dashboard` in `data` Schema.
-
-#### Prepare Initialization Scripts:
 
 As [gitRepo](https://kubernetes.io/docs/concepts/storage/volumes/#gitrepo) volume has been deprecated, we will use a ConfigMap as script source. You can use any Kubernetes supported [volume](https://kubernetes.io/docs/concepts/storage/volumes) as script source.
 
@@ -55,16 +51,9 @@ $ kubectl create configmap -n demo pg-init-script \
 configmap/pg-init-script created
 ```
 
-#### Create Postgres:
+## Create PostgreSQL with script source
 
-Now, create the Postgres crd which YAML we have shown above,
-
-```console
-$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/initialization/script-postgres.yaml 
-postgres.kubedb.com/script-postgres created
-```
-
-Following YAML describes the Postgres object that we have created above.
+Following YAML describes the Postgres object with `init.scriptSource`,
 
 ```yaml
 apiVersion: kubedb.com/v1alpha1
@@ -92,6 +81,13 @@ Here,
 - `init.scriptSource` specifies scripts used to initialize the database when it is being created.
 
 VolumeSource provided in `init.scriptSource` will be mounted in Pod and will be executed while creating PostgreSQL.
+
+Now, let's create the Postgres crd which YAML we have shown above,
+
+```console
+$ kubectl create -f https://raw.githubusercontent.com/kubedb/cli/0.9.0-beta.0/docs/examples/postgres/initialization/script-postgres.yaml 
+postgres.kubedb.com/script-postgres created
+```
 
 Now, wait until Postgres goes in `Running` state. Verify that the database is in `Running` state using following command,
 
@@ -188,7 +184,7 @@ Events:
   Normal  Successful  57s   Postgres operator  Successfully patched Postgres
 ```
 
-#### Verify Initialization:
+## Verify Initialization
 
 Now let's connect to our Postgres `script-postgres`  using pgAdmin we have installed in [quickstart](/docs/guides/postgres/quickstart/quickstart.md#before-you-begin) tutorial to verify that the database has been initialized successfully.
 
@@ -224,7 +220,7 @@ select * from pg_catalog.pg_tables where schemaname = 'data';
  | ---------- | --------- | ---------- | ---------- | -------- | ----------- | ----------- |
  | data       | dashboard | postgres   | true       | false    | false       | false       |
 
-We can see TABLE `dashboard` in `data` Schema which is created for initialization.
+We can see TABLE `dashboard` in `data` Schema which is created through initialization.
 
 ## Cleaning up
 

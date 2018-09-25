@@ -1,12 +1,12 @@
 ---
 title: Run PostgreSQL with Custom Configuration
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-custom-config-quickstart
     name: Quickstart
     parent: pg-custom-config
     weight: 10
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).

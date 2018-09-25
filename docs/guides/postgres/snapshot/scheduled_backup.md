@@ -1,12 +1,12 @@
 ---
 title: Scheduled Backup of PostgreSQL
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-scheduled-backup-snapshot
     name: Scheduled Backup
     parent: pg-snapshot-postgres
     weight: 15
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > Don't know how backup works?  Check [tutorial](/docs/guides/postgres/snapshot/instant_backup.md) on Instant Backup.
@@ -105,7 +105,7 @@ NAME                           DATABASENAME   STATUS      AGE
 scheduled-pg-20180921-090932   scheduled-pg   Succeeded   32s
 ```
 
-## Update Postgres to disable periodic backups
+## Update Postgres to Disable Periodic Backup
 
 If you already have a running PostgreSQL that takes backup periodically, you can disable that by removing BackupSchedule field.
 
@@ -121,7 +121,7 @@ spec:
 #      bucket: kubedb
 ```
 
-## Update Postgres to enable periodic backups
+## Update Postgres to Enable Periodic Backup
 
 If you already have a running Postgres, you can enable periodic backups by adding BackupSchedule.
 

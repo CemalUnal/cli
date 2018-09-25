@@ -1,12 +1,12 @@
 ---
 title: Instant Backup of PostgreSQL
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-instant-backup-snapshot
     name: Instant Backup
     parent: pg-snapshot-postgres
     weight: 10
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).
@@ -20,8 +20,6 @@ This tutorial will show how to take instant backup of PostgreSQL database deploy
 ## Before You Begin
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
-
-#### Install KubeDB:
 
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
@@ -38,7 +36,7 @@ demo    Active  5s
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
-#### Prepare Database:
+## Prepare Database
 
 We need an Postgres database running to perform backup operation. If you don't have a Postgres instance running, let's create one.
 
@@ -124,7 +122,7 @@ In this case, `kubedb.com/kind: Postgres` tells KubeDB operator that this Snapsh
 
 > Note: Snapshot and Secret objects must be in the same namespace as Postgres, `script-postgres`, in our case.
 
-#### Snapshot Storage Secret
+### Snapshot Storage Secret
 
 Storage Secret should contain credentials that will be used to access storage destination. In this tutorial, snapshot data will be stored in a Google Cloud Storage (GCS) bucket.
 
@@ -162,7 +160,7 @@ type: Opaque
 
 ```
 
-#### Snapshot Storage Backend
+### Snapshot Storage Backend
 
 KubeDB supports various cloud providers (_S3_, _GCS_, _Azure_, _OpenStack_ _Swift_ and/or locally mounted volumes) as snapshot storage backend. In this tutorial, _GCS_ backend is used.
 

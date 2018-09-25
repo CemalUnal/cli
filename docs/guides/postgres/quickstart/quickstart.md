@@ -1,12 +1,12 @@
 ---
 title: PostgreSQL Quickstart
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-quickstart-quickstart
     name: Overview
     parent: pg-quickstart-postgres
     weight: 10
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).
@@ -23,8 +23,6 @@ This tutorial will show you how to use KubeDB to run a PostgreSQL database.
 
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster. If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
-#### Install KubeDB:
-
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
 To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
@@ -38,7 +36,7 @@ NAME    STATUS  AGE
 demo    Active  5s
 ```
 
-#### Install pgAdmin:
+## Install pgAdmin
 
 This tutorial will also use a pgAdmin to connect and test PostgreSQL database, once it is running.
 
@@ -67,7 +65,7 @@ http://192.168.99.100:31983
 
 To log into the pgAdmin, use username __`admin`__ and password __`admin`__.
 
-#### Find Available StorageClass:
+## Find Available StorageClass
 
 We will have to provide `StorageClass` in Postgres crd specification. Check available `StorageClass` in your cluster using following command,
 
@@ -79,7 +77,7 @@ standard (default)   k8s.io/minikube-hostpath   5h
 
 Here, we have `standard` StorageClass in our cluster.
 
-#### Find Available PostgresVersion:
+## Find Available PostgresVersion
 
 When you have installed KubeDB, it has created `PostgresVersion` crd for all supported PostgreSQL versions. Let's check available PostgresVersions by,
 
@@ -251,7 +249,9 @@ KubeDB supports PostgreSQL clustering where Pod can be either *primary* or *stan
 
 Here, we have created a PostgreSQL database with single node, *primary* only.
 
-Please note that KubeDB operator has created a new Secret called `quick-postgres-auth` for storing the *username* and *password* for `postgres` database.
+## Connect with PostgreSQL database
+
+KubeDB operator has created a new Secret called `quick-postgres-auth` for storing the *username* and *password* for `postgres` database.
 
 ```yaml
  $ kubectl get secret -n demo quick-postgres-auth -o yaml

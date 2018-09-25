@@ -1,12 +1,12 @@
 ---
 title: Initialize Postgres from WAL
 menu:
-  docs_0.8.0:
+  docs_0.9.0-beta.0:
     identifier: pg-wal-source-initialization
     name: From WAL
     parent: pg-initialization-postgres
     weight: 20
-menu_name: docs_0.8.0
+menu_name: docs_0.9.0-beta.0
 section_menu_id: guides
 ---
 > New to KubeDB? Please start [here](/docs/concepts/README.md).
@@ -22,8 +22,6 @@ KubeDB supports PostgreSQL database initialization. When you create a new Postgr
 At first, you need to have a Kubernetes cluster, and the kubectl command-line tool must be configured to communicate with your cluster.
 If you do not already have a cluster, you can create one by using [minikube](https://github.com/kubernetes/minikube).
 
-#### Install KubeDB:
-
 Now, install KubeDB cli on your workstation and KubeDB operator in your cluster following the steps [here](/docs/setup/install.md).
 
 To keep things isolated, this tutorial uses a separate namespace called `demo` throughout this tutorial.
@@ -37,7 +35,7 @@ NAME    STATUS  AGE
 demo    Active  5s
 ```
 
-#### Prepare WAL Archive:
+## Prepare WAL Archive
 
 We need a WAL archive to perform initialization. If you already don't have a WAL archive ready, create one by following the tutorial [here](/docs/guides/postgres/snapshot/continuous_archiving.md).
 
@@ -98,9 +96,7 @@ Now, we are ready to proceed for rest of the tutorial.
 
 > Note: Yaml files used in this tutorial are stored in [docs/examples/postgres](https://github.com/kubedb/cli/tree/master/docs/examples/postgres) folder in github repository [kubedb/cli](https://github.com/kubedb/cli).
 
-## Initialize from WAL Source
-
-#### Create Postgres with WAL source:
+## Create Postgres with WAL source
 
 We can initialize a new database from this archived WAL files. We have to specify the archive backend in the `spec.init.postgresWAL` field of Postgres object.
 
@@ -154,7 +150,7 @@ postgres.kubedb.com/replay-postgres created
 
 This will create a new database and will initialize the database from the archived WAL files.
 
-#### Verify Initialization:
+## Verify Initialization
 
 Let's verify that the new database has been initialized successfully from the WAL archive. It must contain the table we have created for `wal-postgres` database.
 
